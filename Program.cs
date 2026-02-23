@@ -1,6 +1,9 @@
+using ProjectDataBase.Service;
 using ProjectDataBase.Components;
 
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<DatabaseService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

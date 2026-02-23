@@ -1,0 +1,52 @@
+﻿@page "/users"
+
+@* 💡 שימו לב: החליפו את 'MyTubeCollector' בשם הפרויקט שלכם! *@
+@using ProjectDataBase.Model
+@using ProjectDataBase.Service
+
+@* מבקשים מהמערכת לתת לנו גישה ל-DatabaseService *@
+@inject DatabaseService dbService
+
+<h3>רשימת המשתמשים במערכת</h3>
+
+@* אם הרשימה עדיין ריקה (הנתונים טרם נטענו) *@
+@if (users == null)
+{
+    <p>טוען נתונים...</p>
+}
+else
+{
+    @* בניית טבלה פשוטה *@
+    <table border="1">
+        <thead>
+            <tr>
+                <th>מזהה (UserID)</th>
+                <th>שם מלא</th>
+                <th>שם משתמש</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* לולאה שעוברת על כל משתמש ברשימה ומייצרת לו שורה בטבלה *@
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.GetId()</td>
+                    <td>@user.GetFullName()</td>
+                    <td>@user.GetUserName()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    // משתנה שישמור את רשימת המשתמשים
+    private List<User> users;
+
+    // פונקציה שמופעלת אוטומטית כשהדף נטען
+    protected override void OnInitialized()
+    {
+        // הפעלת הפונקציה מהשירות ושמירת התוצאה במשתנה שלנו
+        users = dbService.GetAllUsers();
+    }
+}
