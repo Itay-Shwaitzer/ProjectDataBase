@@ -1,0 +1,47 @@
+﻿@page "/users"
+@rendermode InteractiveServer
+
+@using ProjectDataBase.Model
+@using ProjectDataBase.Service
+@inject DatabaseService dbService
+
+<h3>רשימת המשתמשים</h3>
+
+@if (usersList == null || usersList.Count == 0)
+{
+    <p>אין משתמשים להצגה</p>
+}
+else
+{
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>שם מלא</th>
+                <th>שם משתמש</th>
+                <th>תפקיד</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (User user in usersList)
+            {
+                <tr>
+                    <td>@user.GetId()</td>
+                    <td>@user.GetFullName()</td>
+                    <td>@user.GetUserName()</td>
+                    <td>@user.GetRole()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<User> usersList = new List<User>();
+
+    // טוען את כל המשתמשים כשהדף נפתח
+    protected override void OnInitialized()
+    {
+        usersList = dbService.GetAllUsers();
+    }
+}

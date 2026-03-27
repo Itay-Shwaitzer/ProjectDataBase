@@ -1,0 +1,67 @@
+﻿@page "/register"
+@rendermode InteractiveServer
+
+@using ProjectDataBase.Model
+@using ProjectDataBase.Service
+
+@inject DatabaseService dbService
+@inject NavigationManager nav
+
+<h3>הרשמה</h3>
+
+<div>
+    <label>שם מלא:</label>
+    <input @bind="fullName" />
+</div>
+
+<div>
+    <label>שם משתמש:</label>
+    <input @bind="userName" />
+</div>
+
+<div>
+    <label>סיסמה:</label>
+    <input type="password" @bind="password" />
+</div>
+
+<br />
+
+<button @onclick="RegisterUser">הרשם</button>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <p>@message</p>
+}
+
+@code {
+    private string fullName;
+    private string userName;
+    private string password;
+    private string message;
+
+    // יוצרת משתמש חדש ושומרת אותו בטבלה
+    private void RegisterUser()
+    {
+        if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+        {
+            message = "יש למלא את כל השדות";
+            return;
+        }
+
+        if (dbService.UserExists(userName))
+        {
+            message = "שם המשתמש כבר קיים";
+            return;
+        }
+
+        User user = new User();
+        user.SetFullName(fullName);
+        user.SetUserName(userName);
+        user.SetPassword(password);
+        user.SetRole("user");
+
+        dbService.AddUser(user);
+
+        message = "נרשמת בהצלחה!";
+    }
+}

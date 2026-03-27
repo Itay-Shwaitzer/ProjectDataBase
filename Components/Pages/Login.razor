@@ -1,0 +1,50 @@
+﻿@page "/login"
+@rendermode InteractiveServer
+
+@using ProjectDataBase.Model
+@using ProjectDataBase.Service
+@inject DatabaseService dbService
+
+<h3>התחברות</h3>
+
+<div>
+    <label>שם משתמש:</label>
+    <input @bind="userName" />
+</div>
+
+<div>
+    <label>סיסמה:</label>
+    <input type="password" @bind="password" />
+</div>
+
+<br />
+
+<button @onclick="LoginUser">התחבר</button>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <p>@message</p>
+}
+
+@code {
+    private string userName = "";
+    private string password = "";
+    private string message = "";
+
+    // בודקת אם פרטי ההתחברות נכונים
+    private void LoginUser()
+    {
+        List<User> usersList = dbService.GetAllUsers();
+
+        foreach (User user in usersList)
+        {
+            if (user.GetUserName() == userName && user.GetPassword() == password)
+            {
+                message = "התחברת בהצלחה";
+                return;
+            }
+        }
+
+        message = "שם משתמש או סיסמה שגויים";
+    }
+}
