@@ -1,0 +1,33 @@
+﻿@page "/gallery"
+@rendermode InteractiveServer
+
+@using ProjectDataBase.Model
+@using ProjectDataBase.Service
+@inject DatabaseService dbService
+
+<h3>גלריית תמונות</h3>
+
+@if (imagesList.Count == 0)
+{
+    <p>אין תמונות להצגה</p>
+}
+else
+{
+    @foreach (GameImage img in imagesList)
+    {
+        <div style="margin-bottom:20px;">
+            <h4>@img.GetTitle()</h4>
+            <img src="@img.GetImageUrl()" width="300" />
+            <p>@img.GetDescription()</p>
+        </div>
+    }
+}
+
+@code {
+    private List<GameImage> imagesList = new List<GameImage>();
+
+    protected override void OnInitialized()
+    {
+        imagesList = dbService.GetAllImages();
+    }
+}

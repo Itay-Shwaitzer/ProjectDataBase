@@ -40,6 +40,36 @@ namespace ProjectDataBase.Service
             return usersList;
         }
 
+        // מחזירה את כל התמונות מהטבלה
+        public List<GameImage> GetAllImages()
+        {
+            List<GameImage> imagesList = new List<GameImage>();
+
+            using (SqliteConnection connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+
+                SqliteCommand command = connection.CreateCommand();
+                command.CommandText = "SELECT * FROM GameImages";
+
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int id = Convert.ToInt32(reader["Id"]);
+                        string title = reader["Title"]?.ToString() ?? "";
+                        string imageUrl = reader["ImageUrl"]?.ToString() ?? "";
+                        string description = reader["Description"]?.ToString() ?? "";
+
+                        GameImage img = new GameImage(id, title, imageUrl, description);
+                        imagesList.Add(img);
+                    }
+                }
+            }
+
+            return imagesList;
+        }
+
         // מוסיפה משתמש חדש לטבלת Users
         public void AddUser(User user)
         {
