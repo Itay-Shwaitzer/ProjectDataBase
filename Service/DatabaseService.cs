@@ -26,10 +26,10 @@ namespace ProjectDataBase.Service
                     while (reader.Read())
                     {
                         int id = Convert.ToInt32(reader["Id"]);
-                        string fullName = reader["FullName"].ToString();
-                        string userName = reader["Username"].ToString();
-                        string password = reader["Password"].ToString();
-                        string role = reader["Role"].ToString();
+                        string fullName = reader["FullName"]?.ToString() ?? "";
+                        string userName = reader["Username"]?.ToString() ?? "";
+                        string password = reader["Password"]?.ToString() ?? "";
+                        string role = reader["Role"]?.ToString() ?? "";
 
                         User u = new User(id, fullName, userName, password, role);
                         usersList.Add(u);
@@ -38,36 +38,6 @@ namespace ProjectDataBase.Service
             }
 
             return usersList;
-        }
-
-        // מחזירה את כל התמונות מהטבלה
-        public List<GameImage> GetAllImages()
-        {
-            List<GameImage> imagesList = new List<GameImage>();
-
-            using (SqliteConnection connection = new SqliteConnection(_connectionString))
-            {
-                connection.Open();
-
-                SqliteCommand command = connection.CreateCommand();
-                command.CommandText = "SELECT * FROM GameImages";
-
-                using (SqliteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        int id = Convert.ToInt32(reader["Id"]);
-                        string title = reader["Title"]?.ToString() ?? "";
-                        string imageUrl = reader["ImageUrl"]?.ToString() ?? "";
-                        string description = reader["Description"]?.ToString() ?? "";
-
-                        GameImage img = new GameImage(id, title, imageUrl, description);
-                        imagesList.Add(img);
-                    }
-                }
-            }
-
-            return imagesList;
         }
 
         // מוסיפה משתמש חדש לטבלת Users
@@ -124,8 +94,8 @@ namespace ProjectDataBase.Service
             }
         }
 
-        // מעדכנת שם ותפקיד של משתמש
-        public void UpdateUser(int id, string fullName, string role)
+        // מעדכנת פרטים של משתמש
+        public void UpdateUser(int id, string fullName, string userName, string role)
         {
             using (SqliteConnection connection = new SqliteConnection(_connectionString))
             {
@@ -133,14 +103,45 @@ namespace ProjectDataBase.Service
 
                 SqliteCommand command = connection.CreateCommand();
 
-                command.CommandText = "UPDATE Users SET FullName = @FullName, Role = @Role WHERE Id = @Id";
+                command.CommandText = "UPDATE Users SET FullName = @FullName, Username = @Username, Role = @Role WHERE Id = @Id";
 
                 command.Parameters.AddWithValue("@Id", id);
                 command.Parameters.AddWithValue("@FullName", fullName);
+                command.Parameters.AddWithValue("@Username", userName);
                 command.Parameters.AddWithValue("@Role", role);
 
                 command.ExecuteNonQuery();
             }
+        }
+
+        // מחזירה את כל התמונות מהטבלה
+        public List<GameImage> GetAllImages()
+        {
+            List<GameImage> imagesList = new List<GameImage>();
+
+            using (SqliteConnection connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+
+                SqliteCommand command = connection.CreateCommand();
+                command.CommandText = "SELECT * FROM GameImages";
+
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int id = Convert.ToInt32(reader["Id"]);
+                        string title = reader["Title"]?.ToString() ?? "";
+                        string imageUrl = reader["ImageUrl"]?.ToString() ?? "";
+                        string description = reader["Description"]?.ToString() ?? "";
+
+                        GameImage img = new GameImage(id, title, imageUrl, description);
+                        imagesList.Add(img);
+                    }
+                }
+            }
+
+            return imagesList;
         }
     }
 }

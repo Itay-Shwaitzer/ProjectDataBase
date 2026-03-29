@@ -1,0 +1,124 @@
+﻿@page "/admin"
+@rendermode InteractiveServer
+
+@using ProjectDataBase.Model
+@using ProjectDataBase.Service
+@inject DatabaseService dbService
+@inject UserSessionService sessionService
+@inject NavigationManager nav
+
+<h3>ניהול משתמשים</h3>
+
+@if (usersList.Count == 0)
+{
+    <p>אין משתמשים להצגה</p>
+}
+else
+{
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>שם מלא</th>
+                <th>שם משתמש</th>
+                <th>תפקיד</th>
+                <th>שמירה</th>
+                <th>מחיקה</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (User user in usersList)
+            {
+                <tr>
+                    <td>@user.GetId()</td>
+
+                    <td>
+                        <input @bind="userFullNames[user.GetId()]" />
+                    </td>
+
+                    <td>
+                        <input @bind="userNames[user.GetId()]" />
+                    </td>
+
+                    <td>
+                        <input @bind="userRoles[user.GetId()]" />
+                    </td>
+
+                    <td>
+                        <button @onclick="() => SaveUser(user.GetId())">שמור</button>
+                    </td>
+
+                    <td>
+                        <button @onclick="() => DeleteUser(user.GetId())">מחק</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <p>@message</p>
+}
+
+@code {
+    private List<User> usersList = new List<User>();
+    private Dictionary<int, string> userFullNames = new Dictionary<int, string>();
+    private Dictionary<int, string> userNames = new Dictionary<int, string>();
+    private Dictionary<int, string> userRoles = new Dictionary<int, string>();
+    private string message = "";
+
+    // בודקת הרשאות וטוענת את המשתמשים
+    protected override void OnInitialized()
+    {
+        if (!sessionService.GetIsLoggedIn() || sessionService.GetRole() != "admin")
+        {
+            nav.NavigateTo("/login");
+            return;
+        }
+
+        LoadUsers();
+    }
+
+    // טוענת את המשתמשים ומעדכנת את תיבות הטקסט
+    private void LoadUsers()
+    {
+        usersList = dbService.GetAllUsers();
+
+        userFullNames.Clear();
+        userNames.Clear();
+        userRoles.Clear();
+
+        foreach (User user in usersList)
+        {
+            userFullNames[user.GetId()] = user.GetFullName();
+            userNames[user.GetId()] = user.GetUserName();
+            userRoles[user.GetId()] = user.GetRole();
+        }
+    }
+
+    // שומרת שינויים של משתמש
+    private void SaveUser(int id)
+    {
+        if (string.IsNullOrWhiteSpace(userFullNames[id]) ||
+            string.IsNullOrWhiteSpace(userNames[id]) ||
+            string.IsNullOrWhiteSpace(userRoles[id]))
+        {
+            message = "לא ניתן לשמור שדות ריקים";
+            return;
+        }
+
+        dbService.UpdateUser(id, userFullNames[id], userNames[id], userRoles[id]);
+        message = "המשתמש עודכן בהצלחה";
+        LoadUsers();
+    }
+
+    // מוחקת משתמש ומרעננת את הרשימה
+    private void DeleteUser(int id)
+    {
+        dbService.DeleteUser(id);
+        message = "המשתמש נמחק";
+        LoadUsers();
+    }
+}

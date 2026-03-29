@@ -4,6 +4,8 @@
 @using ProjectDataBase.Model
 @using ProjectDataBase.Service
 @inject DatabaseService dbService
+@inject UserSessionService sessionService
+@inject NavigationManager nav
 
 <h3>התחברות</h3>
 
@@ -31,7 +33,7 @@
     private string password = "";
     private string message = "";
 
-    // בודקת אם פרטי ההתחברות נכונים
+    // בודקת אם פרטי ההתחברות נכונים ושומרת את המשתמש המחובר
     private void LoginUser()
     {
         List<User> usersList = dbService.GetAllUsers();
@@ -40,7 +42,19 @@
         {
             if (user.GetUserName() == userName && user.GetPassword() == password)
             {
+                // 🔥 HERE — this is where you put it
+                sessionService.SetIsLoggedIn(true);
+                sessionService.SetUserName(user.GetUserName());
+                sessionService.SetRole(user.GetRole());
+
                 message = "התחברת בהצלחה";
+
+                // מעבר לאדמין (אם הוא אדמין)
+                if (user.GetRole() == "admin")
+                {
+                    nav.NavigateTo("/admin");
+                }
+
                 return;
             }
         }
