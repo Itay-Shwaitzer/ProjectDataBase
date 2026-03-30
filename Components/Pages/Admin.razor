@@ -57,6 +57,50 @@ else
     </table>
 }
 
+<br />
+<hr />
+<h3>הוספת פוסט חדש</h3>
+
+<div>
+    <label>כותרת:</label>
+    <input @bind="newTitle" />
+</div>
+
+<div>
+    <label>קישור לתמונה:</label>
+    <input @bind="newImageUrl" />
+</div>
+
+<div>
+    <label>תיאור:</label>
+    <input @bind="newDescription" />
+</div>
+
+<br />
+
+<button @onclick="AddNewPost">הוסף פוסט</button>
+
+<hr />
+<h3>ניהול פוסטים</h3>
+
+@if (postsList.Count == 0)
+{
+    <p>אין פוסטים להצגה</p>
+}
+else
+{
+    @foreach (GameImage post in postsList)
+    {
+        <div style="margin-bottom:20px; border:1px solid black; padding:10px;">
+            <h4>@post.GetTitle()</h4>
+            <img src="@post.GetImageUrl()" width="200" />
+            <p>@post.GetDescription()</p>
+
+            <button @onclick="() => DeletePost(post.GetId())">מחק פוסט</button>
+        </div>
+    }
+}
+
 @if (!string.IsNullOrEmpty(message))
 {
     <p>@message</p>
@@ -64,24 +108,31 @@ else
 
 @code {
     private List<User> usersList = new List<User>();
+    private List<GameImage> postsList = new List<GameImage>();
+
     private Dictionary<int, string> userFullNames = new Dictionary<int, string>();
     private Dictionary<int, string> userNames = new Dictionary<int, string>();
     private Dictionary<int, string> userRoles = new Dictionary<int, string>();
+
+    private string newTitle = "";
+    private string newImageUrl = "";
+    private string newDescription = "";
     private string message = "";
 
-    // בודקת הרשאות וטוענת את המשתמשים
+    // בודקת הרשאה וטוענת את הנתונים
     protected override void OnInitialized()
     {
         if (!sessionService.GetIsLoggedIn() || sessionService.GetRole() != "admin")
         {
-            nav.NavigateTo("/login");
+            nav.NavigateTo("/login", true);
             return;
         }
 
         LoadUsers();
+        LoadPosts();
     }
 
-    // טוענת את המשתמשים ומעדכנת את תיבות הטקסט
+    // טוענת את כל המשתמשים ומעדכנת את תיבות הטקסט
     private void LoadUsers()
     {
         usersList = dbService.GetAllUsers();
@@ -96,6 +147,12 @@ else
             userNames[user.GetId()] = user.GetUserName();
             userRoles[user.GetId()] = user.GetRole();
         }
+    }
+
+    // טוענת את כל הפוסטים
+    private void LoadPosts()
+    {
+        postsList = dbService.GetAllImages();
     }
 
     // שומרת שינויים של משתמש
@@ -120,5 +177,36 @@ else
         dbService.DeleteUser(id);
         message = "המשתמש נמחק";
         LoadUsers();
+    }
+
+    // מוסיפה פוסט חדש
+    private void AddNewPost()
+    {
+        if (string.IsNullOrWhiteSpace(newTitle) ||
+            string.IsNullOrWhiteSpace(newImageUrl) ||
+            string.IsNullOrWhiteSpace(newDescription))
+        {
+            message = "יש למלא את כל השדות של הפוסט";
+            return;
+        }
+
+        GameImage newPost = new GameImage(0, newTitle, newImageUrl, newDescription);
+        dbService.AddImage(newPost);
+
+        message = "הפוסט נוסף בהצלחה";
+
+        newTitle = "";
+        newImageUrl = "";
+        newDescription = "";
+
+        LoadPosts();
+    }
+
+    // מוחקת פוסט ומרעננת את הרשימה
+    private void DeletePost(int id)
+    {
+        dbService.DeleteImage(id);
+        message = "הפוסט נמחק";
+        LoadPosts();
     }
 }

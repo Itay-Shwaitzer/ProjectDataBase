@@ -1,18 +1,11 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <main>
+<div>
+    <TopBar />
 
-        <div style="padding:10px; background-color: lightgray;">
-            <a href="/">Home</a> |
-            <a href="/register">Register</a> |
-            <a href="/login">Login</a> |
-            <a href="/gallery">Gallery</a>
-        </div>
+    <hr />
 
-        <div class="content px-4">
-            @Body
-        </div>
-
-    </main>
+    <div>
+        @Body
+    </div>
 </div>

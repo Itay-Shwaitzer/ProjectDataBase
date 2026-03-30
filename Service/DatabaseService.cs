@@ -143,5 +143,38 @@ namespace ProjectDataBase.Service
 
             return imagesList;
         }
+        // מוסיפה פוסט חדש לטבלת GameImages
+        public void AddImage(GameImage image)
+        {
+            using (SqliteConnection connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+
+                SqliteCommand command = connection.CreateCommand();
+
+                command.CommandText = "INSERT INTO GameImages (Title, ImageUrl, Description) VALUES (@Title, @ImageUrl, @Description)";
+
+                command.Parameters.AddWithValue("@Title", image.GetTitle());
+                command.Parameters.AddWithValue("@ImageUrl", image.GetImageUrl());
+                command.Parameters.AddWithValue("@Description", image.GetDescription());
+
+                command.ExecuteNonQuery();
+            }
+        }
+        // מוחקת פוסט לפי ID
+        public void DeleteImage(int id)
+        {
+            using (SqliteConnection connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+
+                SqliteCommand command = connection.CreateCommand();
+                command.CommandText = "DELETE FROM GameImages WHERE Id = @Id";
+
+                command.Parameters.AddWithValue("@Id", id);
+
+                command.ExecuteNonQuery();
+            }
+        }
     }
 }

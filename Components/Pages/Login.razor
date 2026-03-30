@@ -42,17 +42,20 @@
         {
             if (user.GetUserName() == userName && user.GetPassword() == password)
             {
-                // 🔥 HERE — this is where you put it
                 sessionService.SetIsLoggedIn(true);
                 sessionService.SetUserName(user.GetUserName());
                 sessionService.SetRole(user.GetRole());
 
                 message = "התחברת בהצלחה";
 
-                // מעבר לאדמין (אם הוא אדמין)
+                // מעבר לאדמין (אם הוא אדמין) אחרת מעביר לדך הבית
                 if (user.GetRole() == "admin")
                 {
-                    nav.NavigateTo("/admin");
+                    nav.NavigateTo("/admin", true);
+                }
+                else
+                {
+                    nav.NavigateTo("/", true);
                 }
 
                 return;

@@ -1,6 +1,39 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 
-<h1>אתר</h1>
+@using ProjectDataBase.Model
+@using ProjectDataBase.Service
+@inject DatabaseService dbService
 
-<p>אתר </p>
-<p>תיאור שאוסיף מחר כנראה</p>
+<h1>פורום Minecraft</h1>
+
+<p>
+    ברוכים הבאים לפורום המעריצים של Minecraft.
+    כאן אפשר לצפות בפוסטים ותמונות מהמשחק.
+</p>
+
+@if (postsList.Count == 0)
+{
+    <p>אין פוסטים להצגה</p>
+}
+else
+{
+    @foreach (GameImage post in postsList)
+    {
+        <div style="margin-bottom:20px; border:1px solid black; padding:10px;">
+            <h4>@post.GetTitle()</h4>
+            <img src="@post.GetImageUrl()" width="300" />
+            <p>@post.GetDescription()</p>
+        </div>
+    }
+}
+
+@code {
+    private List<GameImage> postsList = new List<GameImage>();
+
+    // טוען את כל הפוסטים כשהדף נפתח
+    protected override void OnInitialized()
+    {
+        postsList = dbService.GetAllImages();
+    }
+}

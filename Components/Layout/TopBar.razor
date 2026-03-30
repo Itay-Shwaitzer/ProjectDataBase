@@ -1,0 +1,26 @@
+﻿@rendermode InteractiveServer
+@using ProjectDataBase.Service
+@inject UserSessionService sessionService
+@inject NavigationManager nav
+
+<div>
+    @if (!sessionService.GetIsLoggedIn())
+    {
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+    }
+    else
+    {
+        <span>מחובר: @sessionService.GetUserName()</span>
+        <button @onclick="Logout">התנתק</button>
+    }
+</div>
+
+@code {
+    // מנתק את המשתמש ומחזיר לעמוד הראשי
+    private void Logout()
+    {
+        sessionService.Logout();
+        nav.NavigateTo("/", true);
+    }
+}
